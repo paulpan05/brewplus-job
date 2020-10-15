@@ -1,0 +1,85 @@
+service: brewplus-job
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dynamodb-local
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchGetItem
+        - dynamodb:BatchWriteItem
+      Resource:
+        - 'Fn::GetAtt': [ BrewPlusFormulae, Arn ]
+        - 'Fn::GetAtt': [ BrewPlusCaskFormulae, Arn ]
+
+functions:
+  main:
+    handler: index.default
+    events:
+      - http: ANY /
+        cors: true
+      - http: 'ANY {proxy+}'
+        cors: true
+    environment:
+      NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
+
+resources:
+  Resources:
+    TEUsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: BrewPlusFormulae
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: full_name-index
+            KeySchema:
+              - AttributeName: full_name
+                AttributeType: S
+            Projection:
+              ProjectionType: KEYS_ONLY
+            BillingMode: PAY_PER_REQUEST
+    TEReportsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: BrewPlusCaskFormulae
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+  nodeEnv:
+    dev: development
+    prod: production
