@@ -44,6 +44,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: name
             AttributeType: S
+          - AttributeName: full_name
+            AttributeType: S
         KeySchema:
           - AttributeName: name
             KeyType: HASH
@@ -52,10 +54,9 @@ resources:
           - IndexName: full_name-index
             KeySchema:
               - AttributeName: full_name
-                AttributeType: S
+                KeyType: HASH
             Projection:
               ProjectionType: KEYS_ONLY
-            BillingMode: PAY_PER_REQUEST
     TEReportsTable:
       Type: AWS::DynamoDB::Table
       Properties:
