@@ -40,7 +40,7 @@ class BrewPlusFormulae {
           const params = {
             TableName: tableName,
             Key: {
-              name: entry[primaryKey],
+              [primaryKey]: entry[primaryKey],
             },
           };
           await this.dynamodb.delete(params).promise();
