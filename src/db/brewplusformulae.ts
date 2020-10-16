@@ -43,7 +43,7 @@ class BrewPlusFormulae {
               name: entry[primaryKey],
             },
           };
-          this.dynamodb.delete(params);
+          await this.dynamodb.delete(params).promise();
         }
       }
     }
