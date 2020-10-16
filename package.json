@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint ./ --ext .js,.mjs,.ts --color",
     "lint:fix": "eslint ./ --ext .js,.mjs,.ts --fix",
-    "start": "sls dynamodb install && sls offline start --httpPort 8080"
+    "start": "sls dynamodb install && sls offline start --httpPort 8080",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -30,20 +31,27 @@
   "homepage": "https://github.com/paulpan05/brewplus-job#readme",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.64",
+    "@types/jest": "^26.0.14",
     "@types/node-fetch": "^2.5.7",
+    "@types/supertest": "^2.0.10",
     "aws-lambda": "^1.0.6",
     "aws-sdk": "^2.772.0",
+    "dynamodb-local": "0.0.31",
     "eslint": "^7.11.0",
     "eslint-config-airbnb-typescript": "^11.0.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.5.3",
     "prettier": "^2.1.2",
     "serverless": "^2.7.0",
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.8.0",
     "serverless-plugin-typescript": "^1.1.9",
-    "typescript": "^4.0.3"
+    "supertest": "^5.0.0",
+    "ts-jest": "^26.4.1",
+    "typescript": "^4.0.3",
+    "yaml": "^1.10.0"
   },
   "dependencies": {
     "node-fetch": "^2.6.1"

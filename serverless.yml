@@ -28,16 +28,13 @@ functions:
   main:
     handler: index.default
     events:
-      - http: ANY /
-        cors: true
-      - http: 'ANY {proxy+}'
-        cors: true
+      - schedule: rate(1 hour)
     environment:
       NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
 
 resources:
   Resources:
-    TEUsersTable:
+    BrewPlusFormulae:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: BrewPlusFormulae
@@ -57,7 +54,7 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: KEYS_ONLY
-    TEReportsTable:
+    BrewPlusCaskFormulae:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: BrewPlusCaskFormulae

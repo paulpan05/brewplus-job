@@ -1,33 +1,35 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import * as AWS from 'aws-sdk';
+import { DynamoDB } from 'aws-sdk';
 import fetch, { Response } from 'node-fetch';
 
 const handler = async (event: APIGatewayProxyEvent, context: Context) => {
-  const dynamodb = new AWS.DynamoDB.DocumentClient({
-    region: 'us-east-1',
-    credentials: {
-      accessKeyId: 'test',
-      secretAccessKey: 'test',
-    },
-    endpoint: 'http://localhost:8000',
-  });
+  const dynamodb = process.env.JEST_WORKER_ID
+    ? ((process as any).dynamodb as DynamoDB.DocumentClient)
+    : new DynamoDB.DocumentClient(
+        process.env.NODE_ENV == 'development'
+          ? {
+              region: 'us-east-1',
+              credentials: {
+                accessKeyId: 'dev',
+                secretAccessKey: 'secret',
+              },
+              endpoint: 'http://localhost:8000',
+            }
+          : undefined,
+      );
   try {
     let res: Response = await fetch('https://formulae.brew.sh/api/formula.json');
     if (!res.ok) {
-      return new Response(`${res.statusText}`, { status: res.status });
+      return {
+        statusCode: res.status,
+        body: res.statusText,
+      };
     }
-    const items: [{ PutRequest: { Item: AWS.DynamoDB.AttributeMap } }] = (await res.json()).map(
+    let items: [{ PutRequest: { Item: DynamoDB.AttributeMap } }] = (await res.json()).map(
       (item: { [key: string]: any }) => {
-        const result = AWS.DynamoDB.Converter.input(item);
-        const name = item.name;
-        const full_name = item.full_name;
         return {
           PutRequest: {
-            Item: {
-              name,
-              full_name,
-              result,
-            },
+            Item: item,
           },
         };
       },
@@ -36,6 +38,29 @@ const handler = async (event: APIGatewayProxyEvent, context: Context) => {
       const params = {
         RequestItems: {
           BrewPlusFormulae: items.slice(i, i + 25),
+        },
+      };
+      await dynamodb.batchWrite(params).promise();
+    }
+
+    res = await fetch('https://formulae.brew.sh/api/cask.json');
+    if (!res.ok) {
+      return {
+        statusCode: res.status,
+        body: res.statusText,
+      };
+    }
+    items = (await res.json()).map((item: { [key: string]: any }) => {
+      return {
+        PutRequest: {
+          Item: item,
+        },
+      };
+    });
+    for (let i = 0; i < items.length; i += 25) {
+      const params = {
+        RequestItems: {
+          BrewPlusCaskFormulae: items.slice(i, i + 25),
         },
       };
       await dynamodb.batchWrite(params).promise();
