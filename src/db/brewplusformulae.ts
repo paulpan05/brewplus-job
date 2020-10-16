@@ -19,7 +19,7 @@ class BrewPlusFormulae {
     const names = new Set<string>();
     const items: [{ PutRequest: { Item: DynamoDB.AttributeMap } }] = (await res.json()).map(
       (item: { [key: string]: any }) => {
-        names.add(item.name);
+        names.add(item[primaryKey]);
         return {
           PutRequest: {
             Item: item,
