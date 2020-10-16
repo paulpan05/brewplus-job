@@ -27,6 +27,7 @@ provider:
 functions:
   main:
     handler: index.default
+    timeout: 900
     events:
       - schedule: rate(1 hour)
     environment:
