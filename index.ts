@@ -1,5 +1,7 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
+import { createServer, proxy} from 'aws-serverless-express';
 import { BrewPlusFormulaeTable } from './src/db';
+import app from './src';
 
 const cronHandler = async (event: APIGatewayProxyEvent, context: Context) => {
   try {
@@ -27,4 +29,8 @@ const cronHandler = async (event: APIGatewayProxyEvent, context: Context) => {
   }
 };
 
-export { cronHandler as default };
+const apiHandler = (event: APIGatewayProxyEvent, context: Context) => {
+  proxy(createServer(app), event, context);
+}
+
+export { cronHandler as default, apiHandler as api };

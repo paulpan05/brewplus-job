@@ -32,6 +32,16 @@ functions:
       - schedule: rate(1 hour)
     environment:
       NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
+  api:
+    handler: index.api
+    timeout: 900
+    events:
+      - http: ANY /
+        cors: true
+      - http: 'ANY {proxy+}'
+        cors: true
+    environment:
+      NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
 
 resources:
   Resources:
