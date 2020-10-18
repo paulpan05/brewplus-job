@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, Context } from 'aws-lambda';
-import { createServer, proxy} from 'aws-serverless-express';
+import { createServer, proxy } from 'aws-serverless-express';
 import { BrewPlusFormulaeTable } from './src/db';
 import app from './src';
 
-const cronHandler = async (event: APIGatewayProxyEvent, context: Context) => {
+const cronHandler = async () => {
   try {
     await BrewPlusFormulaeTable.handleCron(
       'BrewPlusFormulae',
@@ -21,7 +21,6 @@ const cronHandler = async (event: APIGatewayProxyEvent, context: Context) => {
       body: 'Success',
     };
   } catch (err) {
-    console.log(err);
     return {
       statusCode: err.statusCode,
       body: err.code,
@@ -31,6 +30,6 @@ const cronHandler = async (event: APIGatewayProxyEvent, context: Context) => {
 
 const apiHandler = (event: APIGatewayProxyEvent, context: Context) => {
   proxy(createServer(app), event, context);
-}
+};
 
 export { cronHandler as default, apiHandler as api };

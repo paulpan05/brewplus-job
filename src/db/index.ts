@@ -4,7 +4,7 @@ import BrewPlusFormulae from './brewplusformulae';
 const dynamodb = process.env.JEST_WORKER_ID
   ? ((process as any).dynamodb as DynamoDB.DocumentClient)
   : new DynamoDB.DocumentClient(
-      process.env.NODE_ENV == 'development'
+      process.env.NODE_ENV === 'development'
         ? {
             region: 'us-east-1',
             credentials: {
@@ -18,5 +18,5 @@ const dynamodb = process.env.JEST_WORKER_ID
 
 const BrewPlusFormulaeTable = new BrewPlusFormulae(dynamodb);
 
+// eslint-disable-next-line import/prefer-default-export
 export { BrewPlusFormulaeTable };
-

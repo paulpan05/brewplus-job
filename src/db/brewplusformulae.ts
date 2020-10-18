@@ -11,10 +11,7 @@ class BrewPlusFormulae {
   async handleCron(tableName: string, primaryKey: string, url: string, indexName?: string) {
     const res: Response = await fetch(url);
     if (!res.ok) {
-      return {
-        statusCode: res.status,
-        body: res.statusText,
-      };
+      throw Object.assign(new Error(), { statusCode: res.status, code: res.statusText });
     }
     const names = new Set<string>();
     const items: [{ PutRequest: { Item: DynamoDB.AttributeMap } }] = (await res.json()).map(
@@ -35,27 +32,29 @@ class BrewPlusFormulae {
     const result = (await this.dynamodb.scan(params).promise()).Items;
 
     if (result) {
-      for (const entry of result) {
-        if (!names.has(entry[primaryKey])) {
-          const params = {
+      result.forEach(async (item) => {
+        if (!names.has(item[primaryKey])) {
+          const deleteParams = {
             TableName: tableName,
             Key: {
-              [primaryKey]: entry[primaryKey],
+              [primaryKey]: item[primaryKey],
             },
           };
-          await this.dynamodb.delete(params).promise();
+          await this.dynamodb.delete(deleteParams).promise();
         }
-      }
+      });
     }
 
     for (let i = 0; i < items.length; i += 25) {
-      const params = {
+      const writeParams = {
         RequestItems: {
           [tableName]: items.slice(i, i + 25),
         },
       };
-      await this.dynamodb.batchWrite(params).promise();
+      await this.dynamodb.batchWrite(writeParams).promise();
     }
+
+    return undefined;
   }
 }
 

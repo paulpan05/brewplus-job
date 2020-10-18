@@ -18,7 +18,7 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.get('/', (req, res, next) => {
+app.get('/', (req, res) => {
   return res.send('Hello World!');
 });
 

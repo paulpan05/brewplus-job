@@ -1,4 +1,3 @@
-
 const AWS = require('aws-sdk');
 const DynamoDbLocal = require('dynamodb-local');
 const fs = require('fs');
