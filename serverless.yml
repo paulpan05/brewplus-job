@@ -8,6 +8,8 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
+  http:
+    cors: true
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -25,8 +27,8 @@ provider:
         - 'Fn::GetAtt': [ BrewPlusCaskFormulae, Arn ]
 
 functions:
-  main:
-    handler: index.default
+  cron:
+    handler: index.cron
     timeout: 900
     events:
       - schedule: rate(1 hour)
@@ -34,12 +36,10 @@ functions:
       NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
   api:
     handler: index.api
-    timeout: 900
+    timeout: 30
     events:
       - http: ANY /
-        cors: true
-      - http: 'ANY {proxy+}'
-        cors: true
+      - http: ANY /{proxy+}
     environment:
       NODE_ENV: ${self:custom.nodeEnv.${opt:stage, self:provider.stage}}
 

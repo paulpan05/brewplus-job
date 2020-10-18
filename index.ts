@@ -32,4 +32,4 @@ const apiHandler = (event: APIGatewayProxyEvent, context: Context) => {
   proxy(createServer(app), event, context);
 };
 
-export { cronHandler as default, apiHandler as api };
+export { cronHandler as cron, apiHandler as api };
